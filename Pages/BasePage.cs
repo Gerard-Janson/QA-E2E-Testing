@@ -6,8 +6,8 @@ namespace QAE2ETesting.Pages;
 
 public class BasePage
 {
-    protected IWebDriver Driver;
-    protected WebDriverWait Wait;
+    protected readonly IWebDriver Driver;
+    protected readonly WebDriverWait Wait;
 
     public BasePage(IWebDriver driver)
     {
@@ -17,7 +17,26 @@ public class BasePage
 
     protected void ClickElement(By locator)
     {
-        Wait.Until(ExpectedConditions.ElementToBeClickable(locator)).Click();
+        try
+        {
+            Wait.Until(ExpectedConditions.ElementToBeClickable(locator)).Click();
+            
+        }
+        catch (ElementClickInterceptedException)
+        {
+            IWebElement element = Driver.FindElement(locator);
+            IJavaScriptExecutor js = (IJavaScriptExecutor)Driver;
+            js.ExecuteScript("arguments[0].scrollIntoView({block:'center'});", element);
+            js.ExecuteScript("arguments[0].click();", element);
+        }
+    }
+    protected void SetCheckbox(By locator, bool shouldBeChecked)
+    {
+        IWebElement checkbox = Wait.Until(ExpectedConditions.ElementToBeClickable(locator));
+        if (checkbox.Selected != shouldBeChecked)
+        {
+            ClickElement(locator);
+        }
     }
 
     protected void TypeText(By locator, string text)
@@ -27,13 +46,36 @@ public class BasePage
         element.SendKeys(text);
     }
 
-    protected String GetText(By locator)
+    protected string GetText(By locator)
     {
         return Wait.Until(ExpectedConditions.ElementIsVisible(locator)).Text;
     }
 
+    protected bool IsElementDisplayed(By locator)
+    {
+        try
+        {
+            return Wait.Until(ExpectedConditions.ElementIsVisible(locator)).Displayed;
+        }
+        catch (WebDriverTimeoutException)
+        {
+            return false;
+        }
+    }
+
+    protected void SelectDropDownByValue(By locator, string value)
+    {
+        var element = Wait.Until(ExpectedConditions.ElementIsVisible(locator));
+        SelectElement select = new SelectElement(element);
+        select.SelectByValue(value);
+    }
+
+    protected void SelectDropDownByText(By locator, string text)
+    {
+        var element = Wait.Until(ExpectedConditions.ElementIsVisible(locator));
+        SelectElement select = new SelectElement(element);
+        select.SelectByText(text);
+    }
+    
+
 }
-    
-    
-    
-    
