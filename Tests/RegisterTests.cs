@@ -19,6 +19,9 @@ public class RegisterTests
     [Test]
     public void TestCase1()
     {
+        string uniqueId = Guid.NewGuid().ToString("N")[..8]; 
+        string name = $"Gerard{uniqueId}"; 
+        string email = $"gerard{uniqueId}@gmail.com";
         driver.Navigate().GoToUrl("https://www.automationexercise.com/");
         var title = driver.Title;
         Assert.AreEqual("Automation Exercise", title);
@@ -27,7 +30,7 @@ public class RegisterTests
         SignUpLoginPage signUpLoginPage = new SignUpLoginPage(driver);
         var actualText = signUpLoginPage.GetNewAccountSignUpHeading();
         Assert.That(actualText,Is.EqualTo("New User Signup!"));
-        signUpLoginPage.TypeSignUpNameAndEmail("Gerard Janson","gerardjanson@gmail.com");
+        signUpLoginPage.TypeSignUpNameAndEmail(name,email);
         signUpLoginPage.ClickSignUpButton();
         AccountInformationPage accountInformationPage = new AccountInformationPage(driver);
         var actualHeading =  accountInformationPage.GetAccountInformationHeading();
@@ -37,8 +40,18 @@ public class RegisterTests
         accountInformationPage.SelectDateOfBirth("5","November","1998");
         accountInformationPage.SetNewsletterSubscription(true);
         accountInformationPage.SetSpecialOfferSubscription(true);
-        accountInformationPage.EnterAddressDetails("Gerard","Janson","N/A","13 Klarinet Lane"," ","India","Mumbai","Mumbai","5966","029455677");
+        accountInformationPage.EnterAddressDetails("Gerard","Johnson","N/A","707 Washington Blvd"," ","United States","CT","Stamford","06901","029455677");
         accountInformationPage.ClickCreateAccountButton();
+        AccountCreatedPage accountCreatedPage = new AccountCreatedPage(driver);
+        var newHeading = accountCreatedPage.GetAccountCreatedHeading();
+        Assert.That(newHeading, Is.EqualTo("ACCOUNT CREATED!"));
+        accountCreatedPage.ClickContinueButton();
+        var loginText = homePage.LoginStatusText;
+        Assert.That(loginText, Does.Contain("Logged in as"));
+        homePage.ClickDeleteAccountLink();
+        
+
+
     }
 
     [TearDown]
