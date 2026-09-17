@@ -13,6 +13,7 @@ public class RegisterTests
     public void SetUp()
     {
         driver = new ChromeDriver();
+        driver.Navigate().GoToUrl("https://www.automationexercise.com/");
         driver.Manage().Window.Maximize();
     }
 
@@ -22,7 +23,6 @@ public class RegisterTests
         string uniqueId = Guid.NewGuid().ToString("N")[..8]; 
         string name = $"Gerard{uniqueId}"; 
         string email = $"gerard{uniqueId}@gmail.com";
-        driver.Navigate().GoToUrl("https://www.automationexercise.com/");
         var title = driver.Title;
         Assert.AreEqual("Automation Exercise", title);
         HomePage homePage = new HomePage(driver);
@@ -49,10 +49,12 @@ public class RegisterTests
         var loginText = homePage.LoginStatusText;
         Assert.That(loginText, Does.Contain("Logged in as"));
         homePage.ClickDeleteAccountLink();
-        
-
-
+        AccountDeletedPage accountDeletedPage = new AccountDeletedPage(driver);
+        var deletedHeading = accountDeletedPage.GetAccountDeletedHeading();
+        Assert.That(deletedHeading, Is.EqualTo("ACCOUNT DELETED!"));
+        accountDeletedPage.ClickContinueButton();
     }
+    
 
     [TearDown]
     public void TearDown()
